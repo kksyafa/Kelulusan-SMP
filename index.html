@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pengumuman Kelulusan - SMP IPTEK TANGSEL</title>
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { poppins: ['Poppins', 'sans-serif'], inter: ['Inter', 'sans-serif'] },
+                    colors: { primary: '#1e3a8a', secondary: '#3b82f6', success: '#059669', danger: '#dc2626' }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        :root { --bg-image: url('https://res.cloudinary.com/djfe10hfh/image/upload/v1776064062/ub29y81lmgsqwgvbah9o.jpg'); }
+        body { font-family: 'Inter', sans-serif; min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative; overflow-x: hidden; }
+        body::before { content: ""; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background-image: var(--bg-image); background-size: cover; background-position: center; filter: blur(8px) brightness(0.4); z-index: -1; transform: scale(1.1); }
+        .glass-card { background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(16px); border: 1px solid rgba(255, 255, 255, 0.3); box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37); }
+        .fade-in { animation: fadeIn 0.8s ease-out forwards; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        .loader { border: 3px solid rgba(255,255,255,0.3); border-top: 3px solid #ffffff; border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; }
+        @keyframes spin { 100% { transform: rotate(360deg); } }
+        
+        @media print { 
+            .no-print { display: none !important; } 
+            body::before { display: none !important; } 
+            body { background: white !important; padding: 0 !important; }
+            .glass-card { background: white !important; backdrop-filter: none !important; border: none !important; box-shadow: none !important; width: 100% !important; max-width: 100% !important; margin: 0 !important; padding: 0 !important; }
+            #result-section { display: block !important; padding: 20px !important; }
+            .print-only { display: block !important; }
+        }
+        .print-only { display: none; }
+    </style>
+</head>
+<body class="p-4">
+
+    <header class="mb-10 text-center fade-in no-print">
+        <div class="w-24 h-24 mx-auto bg-white rounded-2xl p-2 shadow-xl mb-4 flex items-center justify-center overflow-hidden">
+            <img src="https://iptek.sch.id/wp-content/uploads/2025/07/logo-terbaru-iptek.png" alt="Logo" class="w-full h-full object-contain">
+        </div>
+        <h1 class="text-2xl font-black text-white uppercase tracking-tight">SMP IPTEK TANGSEL</h1>
+        <p class="text-blue-100 text-sm opacity-80">Sistem Informasi Kelulusan Digital (SIKENTAL) IPTEK SCHOOL</p>
+    </header>
+
+    <main class="w-full max-w-lg relative">
+        <!-- COUNTDOWN -->
+        <section id="countdown-section" class="glass-card rounded-3xl p-8 text-center fade-in">
+            <h2 class="text-xs font-bold text-gray-400 mb-6 uppercase tracking-widest">Pengumuman Dibuka Dalam</h2>
+            <div id="timer" class="flex justify-center gap-4 text-primary font-black text-3xl">
+                <div class="flex flex-col"><span id="days">00</span><small class="text-[10px] text-gray-400 uppercase">Hari</small></div>
+                <div>:</div>
+                <div class="flex flex-col"><span id="hours">00</span><small class="text-[10px] text-gray-400 uppercase">Jam</small></div>
+                <div>:</div>
+                <div class="flex flex-col"><span id="minutes">00</span><small class="text-[10px] text-gray-400 uppercase">Menit</small></div>
+                <div>:</div>
+                <div class="flex flex-col"><span id="seconds">00</span><small class="text-[10px] text-gray-400 uppercase">Detik</small></div>
+            </div>
+        </section>
+
+        <!-- LOGIN -->
+        <section id="login-section" class="glass-card rounded-[2rem] p-8 hidden fade-in">
+            <form id="login-form" class="space-y-4">
+                <div class="text-center mb-6">
+                    <h2 class="text-xl font-bold text-gray-800">Cek Status Anda</h2>
+                </div>
+                <input type="text" id="nisn" placeholder="Masukkan NISN" required class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-primary outline-none transition-all">
+                <input type="password" id="token" placeholder="Masukkan Token" required class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-primary outline-none transition-all">
+                <button type="submit" class="w-full bg-primary text-white font-bold py-3 rounded-xl hover:bg-blue-900 transition-all shadow-lg">MASUK</button>
+            </form>
+        </section>
+
+        <!-- RESULT -->
+        <section id="result-section" class="glass-card rounded-[2rem] overflow-hidden hidden fade-in">
+            <!-- KOP SURAT UNTUK PRINT -->
+            <div class="print-only mb-6 border-b-2 border-black pb-4 text-center">
+                <div class="flex items-center justify-center gap-4 mb-2">
+                    <img src="https://iptek.sch.id/wp-content/uploads/2025/07/logo-terbaru-iptek.png" class="w-16 h-16">
+                    <div class="text-center">
+                        <h1 class="text-lg font-bold uppercase">SMK IPTEK TANGSEL</h1>
+                        <p class="text-[10px] leading-tight">Jl. Lingkar Selatan, Kp. Sengkol Kel. Muncul Kec. Setu, Tangerang Selatan<br>Banten - Indonesia | Website: www.iptek.sch.id</p>
+                    </div>
+                </div>
+            </div>
+
+            <div id="status-banner" class="py-3 text-center text-white font-black text-sm uppercase tracking-widest">STATUS KELULUSAN</div>
+            
+            <div class="p-6 text-center">
+                <div class="relative inline-block mb-4">
+                    <img id="res-photo" src="" alt="Foto Siswa" 
+                         onerror="handleImageError(this)" 
+                         class="w-28 h-28 rounded-full border-4 border-white shadow-xl mx-auto object-cover bg-gray-100">
+                    <div id="photo-loading" class="absolute inset-0 flex items-center justify-center bg-gray-100 rounded-full no-print">
+                        <div class="w-6 h-6 border-2 border-primary border-t-transparent animate-spin rounded-full"></div>
+                    </div>
+                </div>
+                
+                <h3 id="res-name" class="text-xl font-bold text-gray-800 uppercase">Nama Siswa</h3>
+                <p id="res-detail" class="text-xs font-bold text-gray-400 mt-1 uppercase tracking-tighter">NISN: - | KELAS: -</p>
+                
+                <div class="my-4 h-px bg-gray-200"></div>
+                <div id="res-message" class="text-sm p-4 rounded-xl text-justify font-medium mb-6"></div>
+
+                <!-- FOOTER TANDA TANGAN UNTUK PRINT -->
+                <div class="print-only mt-10 w-full">
+                    <div class="flex justify-end text-right">
+                        <div>
+                            <p class="text-xs mb-1">Tangerang Selatan, 4 April 2026</p>
+                            <p class="text-xs font-bold uppercase mb-16">Kepala SMP IPTEK TANGSEL,</p>
+                            <p class="text-xs font-bold underline uppercase">Badrus Setiawan, S.TP</p>
+                            <p class="text-[10px] text-gray-500">NIP. -</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mt-6 flex gap-2 no-print">
+                    <button onclick="window.print()" class="flex-1 bg-gray-800 text-white py-3 rounded-xl text-xs font-bold uppercase tracking-widest">Cetak</button>
+                    <button onclick="location.reload()" class="flex-1 bg-white text-gray-400 py-3 rounded-xl text-xs font-bold border border-gray-200 uppercase tracking-widest">Kembali</button>
+                </div>
+                
+                <button id="btn-fix-photo" onclick="tryAlternativePhoto()" class="mt-4 text-[10px] text-blue-500 underline hidden no-print">Foto tidak muncul? Klik di sini</button>
+            </div>
+        </section>
+
+        <div id="loader" class="hidden flex flex-col items-center py-12">
+            <div class="loader mb-4"></div>
+            <p class="text-white text-xs font-bold animate-pulse">Menghubungkan...</p>
+        </div>
+    </main>
+
+    <footer class="mt-10 text-white/40 text-[10px] text-center no-print">
+        &copy; 2026 Departemen Humas IPTEK SCHOOL
+    </footer>
+
+    <script>
+        const releaseDate = new Date("2026-05-04T18:06:10").getTime();
+        const sheetUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTeeXK-9ELavu_q0TCwD86__04ecIOQ6nmCd8UShvQis1_O4oe23B_2Nq8Y6bff8qetN_n_YCgpIofq/pub?gid=0&single=true&output=csv";
+        let currentStudent = null;
+
+        const timer = setInterval(() => {
+            const distance = releaseDate - new Date().getTime();
+            if (distance < 0) {
+                clearInterval(timer);
+                document.getElementById('countdown-section').classList.add('hidden');
+                document.getElementById('login-section').classList.remove('hidden');
+                return;
+            }
+            document.getElementById('days').innerText = String(Math.floor(distance / 86400000)).padStart(2, '0');
+            document.getElementById('hours').innerText = String(Math.floor((distance % 86400000) / 3600000)).padStart(2, '0');
+            document.getElementById('minutes').innerText = String(Math.floor((distance % 3600000) / 60000)).padStart(2, '0');
+            document.getElementById('seconds').innerText = String(Math.floor((distance % 60000) / 1000)).padStart(2, '0');
+        }, 1000);
+
+        function getFileId(url) {
+            const match = url.match(/\/d\/([^\/]+)|id=([^\&]+)/);
+            return match ? (match[1] || match[2]) : null;
+        }
+
+        function handleImageError(img) {
+            const loader = document.getElementById('photo-loading');
+            if(loader) loader.style.display = 'none';
+            const name = document.getElementById('res-name').innerText || 'Siswa';
+            img.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=1e3a8a&color=fff&size=128`;
+            document.getElementById('btn-fix-photo').classList.remove('hidden');
+        }
+
+        function tryAlternativePhoto() {
+            if (!currentStudent || !currentStudent.foto) return;
+            const id = getFileId(currentStudent.foto);
+            if (id) {
+                const altUrl = `https://lh3.googleusercontent.com/d/${id}`;
+                const img = document.getElementById('res-photo');
+                img.src = altUrl;
+                document.getElementById('btn-fix-photo').classList.add('hidden');
+            }
+        }
+
+        document.getElementById('login-form').onsubmit = (e) => {
+            e.preventDefault();
+            const n = document.getElementById('nisn').value.trim();
+            const t = document.getElementById('token').value.trim();
+            document.getElementById('login-section').classList.add('hidden');
+            document.getElementById('loader').classList.remove('hidden');
+
+            Papa.parse(sheetUrl, {
+                download: true, header: true,
+                complete: function(res) {
+                    const s = res.data.find(x => x.nisn == n && x.token == t);
+                    setTimeout(() => {
+                        document.getElementById('loader').classList.add('hidden');
+                        if (s) { 
+                            currentStudent = s;
+                            showResult(s); 
+                        } else { 
+                            alert("Kombinasi salah!"); 
+                            document.getElementById('login-section').classList.remove('hidden');
+                        }
+                    }, 500);
+                }
+            });
+        };
+
+        function showResult(s) {
+            document.getElementById('result-section').classList.remove('hidden');
+            document.getElementById('res-name').innerText = s.nama;
+            document.getElementById('res-detail').innerText = `NISN: ${s.nisn} | KELAS: ${s.kelas || '-'}`;
+            
+            const fileId = getFileId(s.foto || '');
+            const img = document.getElementById('res-photo');
+            const loader = document.getElementById('photo-loading');
+            
+            if (fileId) {
+                img.src = `https://drive.google.com/thumbnail?id=${fileId}&sz=w500`;
+                img.onload = () => { if(loader) loader.style.display = 'none'; };
+            } else {
+                handleImageError(img);
+            }
+            
+            const isLulus = s.status && s.status.toUpperCase() === "LULUS";
+            const banner = document.getElementById('status-banner');
+            const msg = document.getElementById('res-message');
+            
+            if(isLulus) {
+                banner.className = "py-3 text-center text-white font-black text-sm bg-success";
+                banner.innerText = "LULUS";
+                msg.className = "text-sm p-4 rounded-xl text-justify font-medium bg-emerald-50 text-emerald-900 border border-emerald-100";
+                msg.innerHTML = `Berdasarkan kriteria kelulusan yang telah ditetapkan, Anda dinyatakan <b>LULUS</b> dari SMP IPTEK TANGSEL. Selamat atas pencapaian Anda, teruslah berkarya untuk masa depan yang lebih cerah.`;
+                confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } });
+            } else {
+                banner.className = "py-3 text-center text-white font-black text-sm bg-danger";
+                banner.innerText = "DITUNDA";
+                msg.className = "text-sm p-4 rounded-xl text-justify font-medium bg-red-50 text-red-900 border border-red-100";
+                msg.innerHTML = `Mohon maaf, status kelulusan Anda <b>DITUNDA</b>. Harap segera menghubungi bagian kurikulum atau wali kelas untuk informasi lebih lanjut mengenai persyaratan yang belum terpenuhi.`;
+            }
+        }
+    </script>
+</body>
+</html>
